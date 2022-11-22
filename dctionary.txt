@@ -1,0 +1,185 @@
+0.
+0.0 word: roughly
+0.1 translation: приблизно
+0.2 category: 
+0.3 examples: 
+1.
+1.0 word: borrow
+1.1 translation: позичити
+1.2 category: often usable
+1.3 examples:  .. something stupid
+2.
+2.0 word: space
+2.1 translation: космос
+2.2 category: objects
+2.3 examples: cosmos is beautifull
+3.
+3.0 word: new
+3.1 translation: новий
+3.2 category: simple_word
+3.3 examples: I have a new laptop
+4.
+4.0 word: old
+4.1 translation: давній, далекий, старовинний, досвідчений
+4.2 category: 
+4.3 examples: we greet each other like old friends
+5.
+5.0 word: mature
+5.1 translation: зрілий
+5.2 category: 
+5.3 examples: she was now a mature woman
+6.
+6.0 word: respond
+6.1 translation: відповідати
+6.2 category: 
+6.3 examples: 
+7.
+7.0 word: image
+7.1 translation: образ
+7.2 category: 
+7.3 examples: 
+8.
+8.0 word: rather 
+8.1 translation: швидше
+8.2 category: 
+8.3 examples: 
+9.
+9.0 word: annoy
+9.1 translation: дратувати
+9.2 category: 
+9.3 examples: rock music loud enough to annoy
+10.
+10.0 word: my own
+10.1 translation: мій,власний
+10.2 category: 
+10.3 examples: 
+11.
+11.0 word: looking for
+11.1 translation: шукати
+11.2 category: 
+11.3 examples: 
+12.
+12.0 word: Allow 
+12.1 translation: дозвольте
+12.2 category: 
+12.3 examples: 
+13.
+13.0 word: farewell
+13.1 translation: прощавай
+13.2 category: 
+13.3 examples: 
+14.
+14.0 word: skirts
+14.1 translation: юбка
+14.2 category: 
+14.3 examples: 
+15.
+15.0 word: near
+15.1 translation: близько
+15.2 category: 
+15.3 examples: 
+16.
+16.0 word: in the evening
+16.1 translation: вечором
+16.2 category: 
+16.3 examples: 
+17.
+17.0 word: tonight
+17.1 translation: вечором
+17.2 category: 
+17.3 examples: 
+18.
+18.0 word: tomorrow
+18.1 translation: завтра
+18.2 category: 
+18.3 examples: 
+19.
+19.0 word: yesterday
+19.1 translation: вчора
+19.2 category: 
+19.3 examples: 
+20.
+20.0 word: today
+20.1 translation: сьогодні
+20.2 category: 
+20.3 examples: 
+21.
+21.0 word: last time
+21.1 translation: минулого разу
+21.2 category: 
+21.3 examples: 
+22.
+22.0 word: this time
+22.1 translation: в цей раз
+22.2 category: 
+22.3 examples: 
+23.
+23.0 word: next time
+23.1 translation: наступного разу
+23.2 category: 
+23.3 examples: 
+24.
+24.0 word: recived
+24.1 translation: отримати
+24.2 category: 
+24.3 examples: 
+25.
+25.0 word: dinner
+25.1 translation: сніданок
+25.2 category: 
+25.3 examples: 
+26.
+26.0 word: lanch
+26.1 translation: обід
+26.2 category: 
+26.3 examples: 
+27.
+27.0 word: round
+27.1 translation: круглий
+27.2 category: 
+27.3 examples: 
+28.
+28.0 word: coat
+28.1 translation: пальто
+28.2 category: 
+28.3 examples: 
+29.
+29.0 word: postcard
+29.1 translation: відкритка
+29.2 category: 
+29.3 examples: 
+30.
+30.0 word: show
+30.1 translation: показати
+30.2 category: 
+30.3 examples: 
+31.
+31.0 word: relatives
+31.1 translation: родичі
+31.2 category: 
+31.3 examples: 
+32.
+32.0 word: rope
+32.1 translation: мотузка
+32.2 category: 
+32.3 examples: 
+33.
+33.0 word: wine
+33.1 translation: вино
+33.2 category: 
+33.3 examples: 
+34.
+34.0 word: count on
+34.1 translation: розраховувати на
+34.2 category: 
+34.3 examples: 
+35.
+35.0 word: shirts
+35.1 translation: сорочка
+35.2 category: 
+35.3 examples: 
+36.
+36.0 word: have some fun
+36.1 translation: веселитися
+36.2 category: 
+36.3 examples: 

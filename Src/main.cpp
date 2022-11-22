@@ -1,2 +1,8 @@
+#include "../Core/Core.h"
 int main() 
-{ return 0; }
+{
+  dct_core::DctCore core;
+  core.MainLoop();
+
+ return 0;
+}
