@@ -2,8 +2,6 @@
 #ifndef DCT_CORE
 #define DCT_CORE
 
-#include <string>
-
 #include "../fonts/Fonts.h"
 // forvard declaration, used to minimize includes, see:
 // https://blog.knatten.org/2012/11/30/how-to-avoid-includes-in-headers/
@@ -14,6 +12,7 @@ class Event;
 class RenderWindow;
 class Font;
 class Drawable;
+class String;
 }  // namespace sf
 
 namespace dct_core {
@@ -34,26 +33,26 @@ class DctCore {
   /* Draw certain sf::Drawable object */
   void draw(sf::Drawable& dr);
   /* Draw wstring object */
-  void draw(std::wstring& str, sf::Font& font, sf::Color color, int font_size,
-            uint32_t xp, uint32_t yp);
+  void draw(sf::String str, sf::Font& font, sf::Color color, int font_size,
+            int xp, int yp);
   /* Display already drawed */
   virtual void display();
   /* Clear display  */
   void clear();
   /* Copy wstring to DrawBuffer and draw it each loop iteration */
-  void DrawInLoop(std::wstring wstr, int xp, int yp);
+  void DrawInLoop(sf::String wstr, int xp, int yp);
   /* Copy wstring to DrawBuffer and draw it each loop iteration */
-  void DrawInLoop(std::wstring wstr, sf::Color text_color, int text_size,
+  void DrawInLoop(sf::String wstr, sf::Color text_color, int text_size,
                   int xp, int yp);
   /* draw all words from Data->WordsToDraw buffer */
-  void RemoveFromDrawBuffer(std::wstring wstring);
+  void RemoveFromDrawBuffer(sf::String str);
   /* Clean static DrawBuffer data with all sf::Drawable objects */
   void CleanDrawBuffer();
   /* Get event poiner */
   sf::Event* GetEvent();
   /* Get window pointer */
   sf::RenderWindow* GetWindow();
-  std::wstring GetString();
+  sf::String GetString();
   /* Main loop should be overriden in children class */
   virtual void MainLoop();
   /* Handle all events */
