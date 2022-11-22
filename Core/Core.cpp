@@ -10,8 +10,9 @@ Holds all variables and configs for DctCore class
 */
 namespace dct_core
 {
-static std::vector<sf::Drawable>* DrawBuffer;
+static std::vector<sf::Drawable*> DrawBuffer;
 }
+
 struct dct_core::MySFMLData {
   /*
   Pull event pointer variable
@@ -83,14 +84,15 @@ dct_core::DctCore::~DctCore() {
   if (Data) {
     delete Data;
   }
+  CleanDrawBuffer();
 }
 
 void dct_core::DctCore::draw() 
 {
  // for drawing text in loop
-  for (int i = 0; i < (DrawBuffer->size()); i++) 
+  for (int i = 0; i < (DrawBuffer.size()); i++) 
   {
-   //MainWindow->draw((DrawBuffer[i]));
+   MainWindow->draw(*(DrawBuffer[i]));
   }
 }
 
@@ -116,27 +118,18 @@ void dct_core::DctCore::clear()
  MainWindow->clear(); 
 }
 
-void dct_core::DctCore::DrawAndDisplay() {
-  for (sf::Drawable* dr : *Data->RegisteredOblectToDraw) {
-    MainWindow->draw(*dr);
-  }
-  // Draw words added by dct_coreDctCore::DrawInLoop function
-  MainWindow->display();
-  MainWindow->clear();
-  // std::cout << "2\n";
-  // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-}
-
 void dct_core::DctCore::EventsHandler() {
   while (MainWindow->pollEvent(*event)) {
     switch (event->type) {
       default: {
       } break;
+      /* close main window */
       case sf::Event::Closed: {
         MainWindow->close();
       } break;
       // handle text input for player
       case sf::Event::TextEntered: {
+        break; // do not use this case only for example
         if (event->text.unicode == '\b' && Data->PlayerInput.size() > 0) {
           Data->PlayerInput.erase(Data->PlayerInput.size() - 1, 1);
         } else {
@@ -148,46 +141,57 @@ void dct_core::DctCore::EventsHandler() {
   }    // while (Data->MainWindow->pollEvent(*event))
 }
 
-void dct_core::DctCore::DrawInLoop(std::wstring Text, int xp, int yp) {
-  int TextSize = 20;
-  sf::Color TextColor = sf::Color::Green;
-  this->DrawInLoop(Text, TextColor, TextSize, xp, yp);
+void dct_core::DctCore::DrawInLoop(std::wstring wstr, int xp, int yp) {
+  int text_size = 20;
+  sf::Color text_color = sf::Color::White;
+  this->DrawInLoop(wstr, text_color, text_size, xp, yp);
 }
 
-void dct_core::DctCore::DrawInLoop( std::wstring str, sf::Color TextColor, int TextSize, int xp, int yp) {
-  sf::Text text;
-  for (int i = 0; i < DrawBuffer->size(); i++) {
-    /*std::wstring* pstr = dynamic_cast<std::wstring*>(&DrawBuffer[i]);
+void dct_core::DctCore::DrawInLoop( std::wstring wstr, sf::Color text_color, int text_size, int xp, int yp) {
+  sf::Text* text = new sf::Text;
+  // This for loop for preventing same text on the screen
+  for (int i = 0; i < DrawBuffer.size(); i++) {
+    sf::Text* pstr = dynamic_cast<sf::Text*>(DrawBuffer[i]);
     if (pstr) 
     {
       std::cout << "dynamic cast works!\n";
-    }*/
+      std::wstring wstr_to_compare = pstr->getString();
+      //if strings was the same won't add to draw buffer;
+      if (!wstr_to_compare.compare(wstr)) {
+        return;
+      }
+    }
   }
-  
-
-  text.setFont(*fonts.GetRobotoSlabFont());
-  text.setString(str);
-  text.setCharacterSize(TextSize);
-  text.setFillColor(TextColor);
-  text.setPosition(sf::Vector2f(xp, yp));
-  MainWindow->draw(text);
-  this->Data->WordsToDraw.push_back(text);
+  text->setFont(*fonts.GetRobotoSlabFont());
+  text->setString(wstr);
+  text->setCharacterSize(text_size);
+  text->setFillColor(text_color);
+  text->setPosition(sf::Vector2f(xp, yp));
+  DrawBuffer.push_back(text);
 }
 
-void dct_core::DctCore::RemoveWordByName(std::wstring WordToRemove) {
-  std::vector<sf::Text>::iterator ToEraseIterator = Data->WordsToDraw.begin();
-  for (int counter = 0; counter < Data->WordsToDraw.size(); counter++) {
-    std::wstring str_to_compare =
-        std::wstring(Data->WordsToDraw[counter].getString());
-    if (!str_to_compare.compare(WordToRemove)) {
-      this->Data->WordsToDraw.erase(ToEraseIterator);
-      return;
+void dct_core::DctCore::RemoveFromDrawBuffer(std::wstring wstring) {
+  std::vector<sf::Drawable*>::iterator ToEraseIterator = DrawBuffer.begin();
+  for (uint32_t i = 0; i < DrawBuffer.size(); i++) {
+    sf::Text *wstr_to_compare = dynamic_cast<sf::Text*>(DrawBuffer[i]);
+    if (wstr_to_compare) {
+      if (!std::wstring(wstr_to_compare->getString()).compare(wstring)) {
+        DrawBuffer.erase(ToEraseIterator);
+        return;
+      }
     }
     ToEraseIterator++;
   }
 }
 
-void dct_core::DctCore::CleanAllWords() { this->Data->WordsToDraw.clear(); }
+void dct_core::DctCore::CleanDrawBuffer() {
+  // remove data
+  for (uint32_t i = 0; i < DrawBuffer.size(); i++) {
+    delete DrawBuffer[i];
+  }
+  // clean all pointers
+  DrawBuffer.clear();
+}
 
 sf::Event* dct_core::DctCore::GetEvent() { return event; }
 
@@ -237,15 +241,17 @@ std::wstring dct_core::DctCore::GetString() {
 void dct_core::DctCore::MainLoop() {
   // draw words before main loop starts
   DrawInLoop(L"Yahari", sf::Color::Green, 16, 10, 10);
-  DrawInLoop( L"Yahari", sf::Color::Green,16, 10, 30);
-  //RemoveWordByName(L"No");
+  DrawInLoop(L"Україна", sf::Color::Green, 16, 10, 30);
+  DrawInLoop(L"Санчіз", sf::Color::Green, 16, 10, 50);
+  DrawInLoop( L"Monanto", sf::Color::Green,16, 10, 70);
+  RemoveFromDrawBuffer(L"Yahari");
   //std::wstring StringFromUser = GetString();
   //DrawInLoop( StringFromUser,  sf::Color::Green, 16, 10, 50);
   while (MainWindow->isOpen()) {
     EventsHandler();
     draw();
     display();
-    
+    clear();
   }
 }
 

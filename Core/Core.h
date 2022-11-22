@@ -2,8 +2,9 @@
 #ifndef DCT_CORE
 #define DCT_CORE
 
-#include "../fonts/Fonts.h"
 #include <string>
+
+#include "../fonts/Fonts.h"
 // forvard declaration, used to minimize includes, see:
 // https://blog.knatten.org/2012/11/30/how-to-avoid-includes-in-headers/
 
@@ -24,24 +25,30 @@ class DctCore {
   MyFonts fonts;
   /* Holds all data in cpp struct */
   MySFMLData* Data;
+
  public:
   DctCore();
   ~DctCore();
+  /* Draw all sf::Drawable objects */
   virtual void draw();
+  /* Draw certain sf::Drawable object */
   void draw(sf::Drawable& dr);
-  void draw(std::wstring& str, sf::Font& font, sf::Color color,
-                    int font_size, uint32_t xp, uint32_t yp);
+  /* Draw wstring object */
+  void draw(std::wstring& str, sf::Font& font, sf::Color color, int font_size,
+            uint32_t xp, uint32_t yp);
+  /* Display already drawed */
   virtual void display();
+  /* Clear display  */
   void clear();
-  void DrawInLoop(std::wstring Text, int xp, int yp);
-  void DrawInLoop(std::wstring str, sf::Color TextColor,
- int TextSize,
-
- int xp,
-                        int yp);
+  /* Copy wstring to DrawBuffer and draw it each loop iteration */
+  void DrawInLoop(std::wstring wstr, int xp, int yp);
+  /* Copy wstring to DrawBuffer and draw it each loop iteration */
+  void DrawInLoop(std::wstring wstr, sf::Color text_color, int text_size,
+                  int xp, int yp);
   /* draw all words from Data->WordsToDraw buffer */
-  void RemoveWordByName(std::wstring WordToRemove);
-  void CleanAllWords();
+  void RemoveFromDrawBuffer(std::wstring wstring);
+  /* Clean static DrawBuffer data with all sf::Drawable objects */
+  void CleanDrawBuffer();
   /* Get event poiner */
   sf::Event* GetEvent();
   /* Get window pointer */
@@ -49,12 +56,8 @@ class DctCore {
   std::wstring GetString();
   /* Main loop should be overriden in children class */
   virtual void MainLoop();
-
- private:
-  /* Draw object from inner data struct */
-  void DrawAndDisplay();
   /* Handle all events */
-  void EventsHandler();
+  virtual void EventsHandler();  
 };
 }  // namespace dct_core
 #endif  // DCT_CORE
