@@ -14,13 +14,17 @@ class Font;
 class Drawable;
 class String;
 }  // namespace sf
-
 namespace dct_core {
+ struct Word { 
+  sf::String *word;
+  sf::String *translation;
+  sf::String *category;
+  sf::String *example;
+}; // struct Word
 struct MySFMLData;
 class DctCore {
  private:
   sf::RenderWindow* MainWindow;
-  sf::Event* event;
   MyFonts fonts;
   /* Holds all data in cpp struct */
   MySFMLData* Data;
@@ -28,6 +32,8 @@ class DctCore {
  public:
   DctCore();
   ~DctCore();
+  /* Handle all events */
+  sf::Event* event;
   /* Draw all sf::Drawable objects */
   virtual void draw();
   /* Draw certain sf::Drawable object */
@@ -48,15 +54,18 @@ class DctCore {
   void RemoveFromDrawBuffer(sf::String str);
   /* Clean static DrawBuffer data with all sf::Drawable objects */
   void CleanDrawBuffer();
-  /* Get event poiner */
-  sf::Event* GetEvent();
   /* Get window pointer */
   sf::RenderWindow* GetWindow();
+  // TODO: remove GetString()
   sf::String GetString();
   /* Main loop should be overriden in children class */
   virtual void MainLoop();
   /* Handle all events */
-  virtual void EventsHandler();  
+  virtual void EventsHandler();
+  /* Read all words from saved *.txt file */
+  bool LoadFromTxt(sf::String filename);
+  /* Save dictionary in file */
+  bool SaveInFile(sf::String filename);
 };
 }  // namespace dct_core
 #endif  // DCT_CORE
