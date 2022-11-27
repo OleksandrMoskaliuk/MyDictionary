@@ -145,16 +145,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Core\Core.cpp" />
-    <ClCompile Include="fonts\Fonts.cpp" />
-    <ClCompile Include="Src\main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Core\Core.h" />
-    <ClInclude Include="fonts\Fonts.h" />
+    <ClCompile Include="Src\Core\Core.cpp" />
+    <ClCompile Include="Src\Dictionary\Dct.cpp" />
+    <ClCompile Include="Src\fonts\Fonts.cpp" />
+    <ClCompile Include="Src\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Src\Core\Core.h" />
+    <ClInclude Include="Src\Dictionary\Dct.h" />
+    <ClInclude Include="Src\fonts\Fonts.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

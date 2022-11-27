@@ -1,8 +1,9 @@
-#include "../Core/Core.h"
+#include "../Src/Dictionary/Dct.h"
+
 int main() 
 {
-  dct_core::DctCore core;
-  core.MainLoop();
+  dct::Dct Dictionary;
+  Dictionary.Start();
 
  return 0;
 }
