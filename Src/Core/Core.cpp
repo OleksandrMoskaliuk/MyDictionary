@@ -100,12 +100,10 @@ void dct_core::DctCore::DrawInLoop(sf::String str, int xp, int yp) {
 
 void dct_core::DctCore::DrawInLoop(sf::String str, sf::Color text_color,
                                    int text_size, int xp, int yp) {
-  sf::Text* text = new sf::Text;
-  // This for loop for preventing same text on the screen
+  // prevent draw same text on screen
   for (int i = 0; i < DrawBuffer.size(); i++) {
     sf::Text* pstr = dynamic_cast<sf::Text*>(DrawBuffer[i]);
     if (pstr) {
-      std::cout << "dynamic cast works!\n";
       std::wstring wstr_to_compare = pstr->getString();
       // if strings was the same won't add to draw buffer;
       if (!wstr_to_compare.compare(str)) {
@@ -113,12 +111,34 @@ void dct_core::DctCore::DrawInLoop(sf::String str, sf::Color text_color,
       }
     }
   }
-
+  sf::Text* text = new sf::Text;
   text->setFont(*fonts.GetRobotoSlabFont());
   text->setString(str);
   text->setCharacterSize(text_size);
   text->setFillColor(text_color);
   text->setPosition(sf::Vector2f(xp, yp));
+  DrawBuffer.push_back(text);
+}
+
+void dct_core::DctCore::DrawInLoop(sf::Text *txt, sf::Color text_color, int xp, int yp) 
+{
+  // prevent draw same text on screen
+  for (int i = 0; i < DrawBuffer.size(); i++) {
+    sf::Text* pstr = dynamic_cast<sf::Text*>(DrawBuffer[i]);
+    if (pstr) {
+      std::wstring wstr_to_compare = pstr->getString();
+      // if strings was the same won't add to draw buffer;
+      if (!wstr_to_compare.compare(txt->getString())) {
+        return;
+      }
+    }
+  }
+  sf::Text *text = new sf::Text;
+  text->setCharacterSize(txt->getCharacterSize());
+  text->setString(txt->getString());
+  text->setFont(*fonts.GetRobotoSlabFont());
+  text->setFillColor(text_color);
+  text->setPosition(xp, yp);
   DrawBuffer.push_back(text);
 }
 
@@ -128,6 +148,8 @@ void dct_core::DctCore::RemoveFromDrawBuffer(sf::String str) {
     sf::Text* wstr_to_compare = dynamic_cast<sf::Text*>(DrawBuffer[i]);
     if (wstr_to_compare) {
       if (!std::wstring(wstr_to_compare->getString()).compare(str)) {
+        delete DrawBuffer[i];
+        DrawBuffer[i] = nullptr;
         DrawBuffer.erase(ToEraseIterator);
         return;
       }
@@ -140,6 +162,7 @@ void dct_core::DctCore::CleanDrawBuffer() {
   // remove data
   for (uint32_t i = 0; i < DrawBuffer.size(); i++) {
     delete DrawBuffer[i];
+    DrawBuffer[i] = nullptr;
   }
   // clean all pointers
   DrawBuffer.clear();

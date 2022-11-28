@@ -47,6 +47,8 @@ class DctCore {
   /* Copy wstring to DrawBuffer and draw it each loop iteration */
   void DrawInLoop(sf::String wstr, sf::Color text_color, int text_size,
                   int xp, int yp);
+  /* Copy wstring to DrawBuffer and draw it each loop iteration */
+  void DrawInLoop(sf::Text* text, sf::Color text_color, int xp, int yp);
   /* draw all words from Data->WordsToDraw buffer */
   void RemoveFromDrawBuffer(sf::String str);
   /* Clean static DrawBuffer data with all sf::Drawable objects */

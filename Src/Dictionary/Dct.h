@@ -27,7 +27,7 @@ class Dct : public dct_core::DctCore {
  private:
   // Current cursor position
   class sf::CircleShape* Cursor;
-  unsigned int MenuCounter = 0;
+  int MenuCounter = 0;
   // Current list pointer to display
   struct Vector2f {};
   /* Handle all events, closing window, pressing button, etc..*/
@@ -41,7 +41,7 @@ class Dct : public dct_core::DctCore {
   /* Read all words from saved *.txt file */
   bool LoadDictionary(sf::String filename);
   /* Save dictionary in file */
-  bool SaveDictionary(sf::String filename);
+  bool const SaveDictionary(sf::String filename) const;
 };
 }
 #endif  // !DICTIONARY2
