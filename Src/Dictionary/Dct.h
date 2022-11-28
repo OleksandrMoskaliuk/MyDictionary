@@ -17,24 +17,25 @@ struct Word {
   sf::String *category;
   sf::String *example;
 };  // struct Word
+struct Swichers 
+{
+  bool isMenuOpen;
+};
 class Dct : public dct_core::DctCore {
  public:
   Dct();
   ~Dct();
   void Start();
  private:
-  class sf::CircleShape* CursorCircle;
-  int MenuCounter = 0;
+  // Current cursor position
+  class sf::CircleShape* Cursor;
+  unsigned int MenuCounter = 0;
   // Current list pointer to display
   struct Vector2f {};
-  // Current cursor position
-  sf::Vector2f* Cursor;
-  void const MakeList();
   /* Handle all events, closing window, pressing button, etc..*/
-  void EventsHandler() override;
+  void EventsHandler();
   void DrawWords();
   void AdjustCursorCirclebyMenuCounter();
-  void EnterPressed();
   // Main menu functiuons
   void ShowDictionary();
   /* Check  if word exist in dictionary */

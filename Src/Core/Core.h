@@ -13,6 +13,7 @@ class RenderWindow;
 class Font;
 class Drawable;
 class String;
+class Text;
 }  // namespace sf
 namespace dct_core {
 struct MySFMLData;
@@ -22,7 +23,7 @@ class DctCore {
   /* Holds all data in cpp struct */
   MySFMLData* Data;
  public:
-  DctCore();
+  DctCore(unsigned int window_width, unsigned int window_height);
   ~DctCore();
   /* Handle all events */
   sf::Event* event;
@@ -32,8 +33,10 @@ class DctCore {
   virtual void draw();
   /* Draw certain sf::Drawable object */
   void draw(sf::Drawable& dr);
+  /* Draw certain sf::Drawable object */
+  void draw(sf::Text& text, unsigned int xp, unsigned int yp);
   /* Draw wstring object */
-  void draw(sf::String str, sf::Font& font, sf::Color color, int font_size,
+  void draw(sf::String str, sf::Font* font, sf::Color color, int font_size,
             int xp, int yp);
   /* Display already drawed */
   virtual void display();
@@ -48,14 +51,10 @@ class DctCore {
   void RemoveFromDrawBuffer(sf::String str);
   /* Clean static DrawBuffer data with all sf::Drawable objects */
   void CleanDrawBuffer();
-  /* Get window pointer */
-  sf::RenderWindow* GetWindow();
   // TODO: remove GetString()
   sf::String GetString();
   /* Main loop should be overriden in children class */
   void MainLoop();
-  /* Handle all events */
-  virtual void EventsHandler();
 };
 }  // namespace dct_core
 #endif  // DCT_CORE

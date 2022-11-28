@@ -34,7 +34,7 @@ sf::Font* MyFonts::GetBisternFont() {
     return BisternFont;
   }
   BisternFont = new sf::Font();
-  if (!BisternFont->loadFromFile("fonts/bistern/Bistern.otf")) {
+  if (!BisternFont->loadFromFile("Src/fonts/bistern/Bistern.otf")) {
     std::cout << "BisternFont font wasn't found!\n";
     return nullptr;
   }
@@ -47,7 +47,7 @@ sf::Font* MyFonts::GetTrajanFont() {
     return TrajanFont;
   }
   TrajanFont = new sf::Font();
-  if (!TrajanFont->loadFromFile("fonts/Trajan/Trajan Pro.ttf")) {
+  if (!TrajanFont->loadFromFile("Src/fonts/Trajan/Trajan Pro.ttf")) {
     std::cout << "TrajanFont font wasn't found!\n";
     return nullptr;
   }
@@ -60,7 +60,7 @@ sf::Font* MyFonts::GetFuturaFont() {
     return FuturaFont;
   }
   FuturaFont = new sf::Font();
-  if (!FuturaFont->loadFromFile("fonts/Futura/futur.ttf")) {
+  if (!FuturaFont->loadFromFile("Src/fonts/Futura/futur.ttf")) {
     std::cout << "FuturaFont font wasn't found!\n";
     return nullptr;
   }
@@ -76,7 +76,7 @@ sf::Font* MyFonts::GetRobotoSlabFont() {
   /* if first time creating */
   RobotoSlabFont = new sf::Font();
   if (!RobotoSlabFont->loadFromFile(
-          "fonts/RobotoSlab/RobotoSlab-VariableFont_wght.ttf")) {
+          "Src/fonts/RobotoSlab/RobotoSlab-VariableFont_wght.ttf")) {
     std::cout << "RoboSlabFont wasn't found!\n";
     return nullptr;
   }

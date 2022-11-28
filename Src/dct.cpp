@@ -10,7 +10,7 @@
 
 #include <fstream>
 
-DictionaryV2::DictionaryV2() : CursorPosition(new sf::Vector2f(0.f, 0.f)) {
+DictionaryV2::DictionaryV2() :, CursorPosition(new sf::Vector2f(0.f, 0.f)) {
   // setup simple circle , for menu cursor
   CursorCircle = new sf::CircleShape(8.f, 8.f);  // size of circle
   CursorCircle->setFillColor(sf::Color::Green);

@@ -1,19 +1,46 @@
 #include "Dct.h"
 
 #include <SFML/Graphics.hpp>
-
 #include <fstream>
 #include <iostream>
 
-namespace dct 
-{
+namespace dct {
 MyFonts Fonts;
-static std::vector<Word> Dictionary;
+std::vector<Word> Dictionary;
+std::vector<sf::Text*> Menu;
+const float WordsYSpace = 1.2;
+}  // namespace dct
+
+dct::Dct::Dct() : DctCore::DctCore(800, 600), Cursor(new sf::CircleShape()) {
+  // Load Dictionary
+  LoadDictionary("dictionary.txt");
+  // Make Menu
+  Menu.push_back(
+      new sf::Text(L"SHOW DICTIONARY", *Fonts.GetFuturaFont(), 16));  // case 0
+  Menu.push_back(
+      new sf::Text(L"ADD WORD", *Fonts.GetFuturaFont(), 16));  // case 1
+  Menu.push_back(
+      new sf::Text(L"REMOVE WORD", *Fonts.GetFuturaFont(), 16));  // case 2
+  Menu.push_back(
+      new sf::Text(L"EDIT WORD", *Fonts.GetFuturaFont(), 16));  // case 3
+  Menu.push_back(
+      new sf::Text(L"TEST YOURSELF", *Fonts.GetFuturaFont(), 16));    // case 4
+  Menu.push_back(new sf::Text(L"SAVE", *Fonts.GetFuturaFont(), 16));  // case 5
+  Menu.push_back(
+      new sf::Text(L"SAVE AND EXIT", *Fonts.GetFuturaFont(), 16));    // case 6
+  Menu.push_back(new sf::Text(L"EXIT", *Fonts.GetFuturaFont(), 16));  // case 7
+  // Setup cursor Circle Shape
+  Cursor->setRadius(6.f);
+  Cursor->setPosition(0.f, 0.f);
+  Cursor->setFillColor(sf::Color::Green);
 }
 
-dct::Dct::Dct() : Cursor(new sf::Vector2f(0.f,0.f)) 
-{
-  // clear dictionary before exit
+dct::Dct::~Dct() {
+  if (Cursor) {
+    delete Cursor;
+    Cursor = nullptr;
+  }
+  // Clear dictionary before exit
   for (Word wd : Dictionary) {
     delete wd.word;
     delete wd.category;
@@ -21,46 +48,131 @@ dct::Dct::Dct() : Cursor(new sf::Vector2f(0.f,0.f))
     delete wd.example;
   }
   Dictionary.clear();
+  // Clear Main Menu  
+  for (sf::Text* tx : Menu) {
+    delete tx;
+    tx = nullptr;
+  }
+  Menu.clear();
 }
 
-dct::Dct::~Dct() 
-{ delete Cursor; }
-
-void dct::Dct::Start() 
-{
-  // draw words before main loop starts
-  /*DrawInLoop("Yahari", sf::Color::Green, 16, 10, 10);
-  DrawInLoop(L"Україна", sf::Color::Green, 16, 10, 30);
-  DrawInLoop(L"Санчіз", sf::Color::Green, 16, 10, 50);
-  DrawInLoop("Monanto", sf::Color::Green, 16, 10, 70);
-  LoadDictionary(L"dctionary.txt");*/
-  //SaveDictionary(L"dctionary.txt");
-
-  //exit(0);
-
-  // RemoveFromDrawBuffer(L"Monanto");
-  // std::wstring StringFromUser = GetString();
-  // DrawInLoop( StringFromUser,  sf::Color::Green, 16, 10, 50);
-
+void dct::Dct::Start() {
   while (MainWindow->isOpen()) {
     EventsHandler();
-    draw();
-    draw(L"Кирил...", *Fonts.GetRobotoSlabFont(), sf::Color::Green, 16, 10, 90);
-
-    for (size_t i = 0; i < Dictionary.size(); i++) {
-      draw(*(Dictionary[i].translation), *Fonts.GetRobotoSlabFont(),
-           sf::Color::Green, 16, 120, 14 * i);
+    // Place main menu in center of screen
+    for (uint8_t i = 0; i < Menu.size(); i++) {
+      Menu[i]->setFillColor(sf::Color::Green);
+      float x = (MainWindow->getSize().x / 2.5);
+      float ScreenYCenter = MainWindow->getSize().y / 3.2;
+      float y = (i * Menu[i]->getCharacterSize() * WordsYSpace) + ScreenYCenter;
+      draw(*Menu[i],x,y);
     }
-
+    // Cursor position adjustments on first start
+    if (Cursor->getPosition().x == 0.f && Cursor->getPosition().x == 0.f &&
+        Menu[0] != nullptr ) {
+      sf::Vector2f current = Menu[MenuCounter]->getPosition();
+      // adjustments
+      current.x -= 14;
+      current.y += 3.5;
+      Cursor->setPosition(current);
+    }
+    draw(*Cursor);
+    draw();
     display();
     clear();
   }
 }
 
+void dct::Dct::EventsHandler() {
+  // parent event handle method for closing windows
+  while (MainWindow->pollEvent(*event)) {
+    switch (event->type) {
+        // Close main window event
+      case sf::Event::Closed: {
+        MainWindow->close();
+      } break;
 
-void dct::Dct::EventsHandler()
+      // handle text input for player
+      case sf::Event::TextEntered: {
+        // do smth
+      } break;  // do not use this case only for example
+
+      case sf::Event::KeyPressed: {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+          if (Menu.size() > 0 && Menu[MenuCounter]) {
+            MenuCounter++;
+            if (MenuCounter > Menu.size() - 1) {
+              MenuCounter = 0;
+            }
+            sf::Vector2f current = Menu[MenuCounter]->getPosition();
+            // adjustments
+            current.x -= 14;
+            current.y += 3.5;
+            Cursor->setPosition(current);
+          }
+        } // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+          if (Menu.size() > 0 && Menu[MenuCounter]) {
+            if (MenuCounter == 0) {
+              MenuCounter = Menu.size() - 1;
+            } else {
+              MenuCounter--;
+            }
+            sf::Vector2f current = Menu[MenuCounter]->getPosition();
+            // adjustments
+            current.x -= 14;
+            current.y += 3.5;
+            Cursor->setPosition(current);
+          }
+        } // (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+          if (Menu[MenuCounter]) {
+            std::wstring action = Menu[MenuCounter]->getString();
+            if (!action.compare(L"SHOW DICTIONARY")) {
+              ShowDictionary();
+            }
+            if (!action.compare(L"ADD WORD")) {
+            }
+            if (!action.compare(L"REMOVE WORD")) {
+            }
+            if (!action.compare(L"EDIT WORD")) {
+            }
+            if (!action.compare(L"TEST YOURSELF")) {
+            }
+            if (!action.compare(L"SAVE")) {
+            }
+            if (!action.compare(L"SAVE AND EXIT")) {
+            }
+            if (!action.compare(L"EXIT")) {
+            }
+          }
+        } //if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+      } break; // Case sf::KeyPressed
+      default: {
+      } break;
+    }  // switch (event->type)
+  }    // while (Data->MainWindow->pollEvent(*event))
+}
+
+void dct::Dct::ShowDictionary() 
 {
-
+ // Remove unnecessaty drawable object from buffer
+ CleanDrawBuffer();
+ uint8_t min_words_to_display = 6;
+ while (MainWindow->isOpen()) {
+ 
+  while (MainWindow->pollEvent(*event)) {
+    switch (event->type) {
+        // Close main window event
+      case sf::Event::Closed: {
+        MainWindow->close();
+      } break;
+    }
+  }
+  draw();
+  display();
+  clear();
+ }
 }
 
 bool dct::Dct::IsInDictionary(sf::String new_word) {
@@ -70,7 +182,6 @@ bool dct::Dct::IsInDictionary(sf::String new_word) {
   }
   return false;
 }
-
 
 bool dct::Dct::LoadDictionary(sf::String filename) {
   /* Shold be set before reading translation field*/
