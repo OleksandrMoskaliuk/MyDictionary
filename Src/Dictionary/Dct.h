@@ -8,19 +8,17 @@
 class Vector2;
 namespace sf {
 class CircleShape;
+class Text;
 }
 namespace dct 
 {
 struct Word {
-  sf::String *word;
-  sf::String *translation;
-  sf::String *category;
-  sf::String *example;
+  sf::Text *word;
+  sf::Text *translation;
+  sf::Text *category;
+  sf::Text *example;
 };  // struct Word
-struct Swichers 
-{
-  bool isMenuOpen;
-};
+
 class Dct : public dct_core::DctCore {
  public:
   Dct();

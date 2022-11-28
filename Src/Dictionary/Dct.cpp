@@ -140,8 +140,11 @@ void dct::Dct::EventsHandler() {
             if (!action.compare(L"TEST YOURSELF")) {
             }
             if (!action.compare(L"SAVE")) {
+              SaveDictionary("dictionary.txt");
             }
             if (!action.compare(L"SAVE AND EXIT")) {
+              SaveDictionary("dictionary.txt");
+              exit(0);
             }
             if (!action.compare(L"EXIT")) {
             }
@@ -158,7 +161,8 @@ void dct::Dct::ShowDictionary()
 {
  // Remove unnecessaty drawable object from buffer
  CleanDrawBuffer();
- uint8_t min_words_to_display = 6;
+ uint8_t words_to_display = 6;
+
  while (MainWindow->isOpen()) {
  
   while (MainWindow->pollEvent(*event)) {
@@ -169,6 +173,7 @@ void dct::Dct::ShowDictionary()
       } break;
     }
   }
+  draw(*Cursor);
   draw();
   display();
   clear();
@@ -177,7 +182,7 @@ void dct::Dct::ShowDictionary()
 
 bool dct::Dct::IsInDictionary(sf::String new_word) {
   for (int i = 0; i < Dictionary.size(); i++) {
-    if (!std::wstring(*Dictionary[i].word).compare(std::wstring(new_word)))
+    if (!std::wstring(Dictionary[i].word->getString()).compare(std::wstring(new_word)))
       return true;
   }
   return false;
@@ -223,10 +228,10 @@ bool dct::Dct::LoadDictionary(sf::String filename) {
       fgetws(wcharb, 100, pFile);
       example = find_word(L"examples:", wcharb, 100);
       Word new_word;
-      new_word.word = new sf::String(word);
-      new_word.translation = new sf::String(translation);
-      new_word.category = new sf::String(category);
-      new_word.example = new sf::String(example);
+      new_word.word = new sf::Text(word, *Fonts.GetBisternFont(), 12u);
+      new_word.translation = new sf::Text(translation,*Fonts.GetBisternFont(), 12u);
+      new_word.category = new sf::Text(category, *Fonts.GetBisternFont(), 12u);
+      new_word.example = new sf::Text(example, *Fonts.GetBisternFont(), 12u);
       Dictionary.push_back(new_word);
       word.clear();
       translation.clear();
@@ -256,14 +261,18 @@ bool dct::Dct::SaveDictionary(sf::String filename) {
       fputws(to_write.c_str(), pFile);
     };
     for (int i = 0; i < Dictionary.size(); i++) {
+      sf::String data;
       int j = 0;
       std::wstring first_lie(std::to_wstring(i) + L'.' + L"\n");
       fputws(first_lie.c_str(), pFile);
-      writer(L" word: ", Dictionary[i].word, i, j);
+      data = (Dictionary[i].word->getString());
+      writer(L" word: ", &data, i, j);
       ++j;
-      writer(L" translation: ", Dictionary[i].translation, i, j);
+      data = (Dictionary[i].translation->getString());
+      writer(L" translation: ", &data , i, j);
       ++j;
-      writer(L" examples: ", Dictionary[i].example, i, j);
+      data = Dictionary[i].example->getString();
+      writer(L" examples: ",&data , i, j);
       ++j;
     }
     fclose(pFile);
