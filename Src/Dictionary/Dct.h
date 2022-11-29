@@ -36,6 +36,8 @@ class Dct : public dct_core::DctCore {
   void AdjustCursorCirclebyMenuCounter();
   // Main menu functiuons
   void ShowDictionary();
+  // Add new word to dictionary
+  bool AddNewWord();
   /* Check  if word exist in dictionary */
   bool IsInDictionary(sf::String new_word);
   /* Read all words from saved *.txt file */

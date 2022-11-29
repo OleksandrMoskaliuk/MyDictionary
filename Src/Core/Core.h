@@ -54,7 +54,8 @@ class DctCore {
   /* Clean static DrawBuffer data with all sf::Drawable objects */
   void CleanDrawBuffer();
   // TODO: remove GetString()
-  sf::String GetString();
+  sf::String GetString(sf::Font* font, sf::Color font_color, int fonst_size,
+                       float xp, float yp);
   /* Main loop should be overriden in children class */
   void MainLoop();
 };

@@ -76,6 +76,11 @@ void dct::Dct::Start() {
       current.y += 3.5;
       Cursor->setPosition(current);
     }
+    draw(
+        L"Controls:\nRght arrow = Enter\nLeft arrow = Back\nUp arrow = Move "
+        L"up\nDown arrow = Move down",
+        Fonts.GetRobotoSlabFont(), sf::Color::Green, 18, 0, 0);
+
     draw(*Cursor);
     draw();
     display();
@@ -91,12 +96,10 @@ void dct::Dct::EventsHandler() {
       case sf::Event::Closed: {
         MainWindow->close();
       } break;
-
       // handle text input for player
       case sf::Event::TextEntered: {
         // do smth
       } break;  // do not use this case only for example
-
       case sf::Event::KeyPressed: {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
           if (Menu.size() > 0 && Menu[MenuCounter]) {
@@ -125,7 +128,7 @@ void dct::Dct::EventsHandler() {
             Cursor->setPosition(current);
           }
         }  // (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
           if (Menu[MenuCounter]) {
             std::wstring action = Menu[MenuCounter]->getString();
             if (!action.compare(L"SHOW DICTIONARY")) {
@@ -138,6 +141,12 @@ void dct::Dct::EventsHandler() {
               MenuCounter = last_menu_counter;
             }
             if (!action.compare(L"ADD WORD")) {
+              // Backup fore some variables
+              sf::Vector2f last_cursor_position = Cursor->getPosition();
+              int last_menu_counter = MenuCounter;
+              AddNewWord();
+              Cursor->setPosition(last_cursor_position);
+              MenuCounter = last_menu_counter;
             }
             if (!action.compare(L"REMOVE WORD")) {
             }
@@ -186,7 +195,8 @@ void dct::Dct::ShowDictionary() {
   }
   // Set cursor pose based on output words and MainWindow
   sf::Vector2f cursor_static_pose;
-  cursor_static_pose.x = (MainWindow->getSize().x / 2) - (longest_word * max_character_size);
+  cursor_static_pose.x =
+      (MainWindow->getSize().x / 2) - (longest_word * max_character_size);
   cursor_static_pose.y = (MainWindow->getSize().y / 2) - max_character_size;
   Cursor->setPosition(cursor_static_pose);
   // How many words to display
@@ -206,7 +216,7 @@ void dct::Dct::ShowDictionary() {
                      i * max_character_size * WordsYSpace +
                          cursor_static_pose.y - 3.5);
           DrawInLoop(Dictionary[MenuCounter + i].translation, sf::Color::Green,
-               cursor_static_pose.x + (longest_word * max_character_size),
+                     cursor_static_pose.x + (longest_word * max_character_size),
                      i * max_character_size * WordsYSpace +
                          cursor_static_pose.y - 3.5);
         }
@@ -225,14 +235,13 @@ void dct::Dct::ShowDictionary() {
         }
       }
       if (Dictionary.size() && Dictionary[MenuCounter].example) {
-        DrawInLoop(L"Example:", sf::Color::Green,18, 0.f, 0.f);
-        if (!std::wstring(Dictionary[MenuCounter].example->getString()).compare(L""))
-        {
-          DrawInLoop(L"<empty>", sf::Color::Red,16, 0.f,
+        DrawInLoop(L"Example:", sf::Color::Green, 18, 0.f, 0.f);
+        if (!std::wstring(Dictionary[MenuCounter].example->getString())
+                 .compare(L"")) {
+          DrawInLoop(L"<empty>", sf::Color::Red, 16, 0.f, 20.f);
+        } else {
+          DrawInLoop(Dictionary[MenuCounter].example, sf::Color::Green, 0.f,
                      20.f);
-        }else
-        {
-        DrawInLoop(Dictionary[MenuCounter].example,sf::Color::Green,0.f,20.f);
         }
       }
     }
@@ -276,12 +285,58 @@ void dct::Dct::ShowDictionary() {
           }  // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
         }
       }
-      draw(*Cursor);
-      draw();
-      display();
-      clear();
+      
     }
+    draw(*Cursor);
+    draw();
+    display();
+    clear();
   }
+}
+
+bool dct::Dct::AddNewWord() 
+{
+  CleanDrawBuffer();
+  while (MainWindow->isOpen()) {
+    while (MainWindow->pollEvent(*event)) {
+      switch (event->type) {
+          // Close main window event
+        case sf::Event::Closed: {
+          MainWindow->close();
+        } break;
+        case sf::Event::KeyPressed: {
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+            MenuCounter++;
+            if (MenuCounter > Dictionary.size() - 1) {
+              MenuCounter = 0;
+            }
+          }  // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+            if (MenuCounter == 0) {
+              MenuCounter = Dictionary.size() - 1;
+            } else {
+              MenuCounter--;
+            }
+          }  // (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+            /*std::cout << "MenuCounter = " << MenuCounter << std::endl;
+               std::wcout << L"Dictuionary[MenuCounter] = "
+                          << std::wstring(
+                                 Dictionary[MenuCounter].word->getString())
+                          << std::endl;*/
+          }  // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Backspace)) {
+            CleanDrawBuffer();
+            return true;
+          }  // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+        }
+      }
+    }
+    draw();
+    display();
+    clear();
+  }
+ return false;
 }
 
 bool dct::Dct::IsInDictionary(sf::String new_word) {

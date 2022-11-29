@@ -168,9 +168,9 @@ void dct_core::DctCore::CleanDrawBuffer() {
   DrawBuffer.clear();
 }
 
-sf::String dct_core::DctCore::GetString() {
-  std::wstring reuslt_str;
-  sf::Vector2f window_center = sf::Vector2f(400.f, 300.f);
+sf::String dct_core::DctCore::GetString(sf::Font *font, sf::Color font_color, int fonst_size, float xp, float yp) {
+  std::wstring result;
+  sf::Vector2f strat_pose(xp, yp);
   //Data->WelcomeText.setPosition(window_center);
   while (true) {
     while (MainWindow->pollEvent(*event)) {
@@ -180,30 +180,32 @@ sf::String dct_core::DctCore::GetString() {
         } break;
         case sf::Event::Closed: {
           MainWindow->close();
-        } break;
+          exit(0);
+        } break; // sf::Event::Closed:
         // handle input for user
         case sf::Event::TextEntered: {
-          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
-            return std::wstring(reuslt_str);
-            break;
-          }
           // Backspace button pressed
-          if (event->text.unicode == '\b' && reuslt_str.size() > 0) {
-            reuslt_str.erase(reuslt_str.size() - 1, 1);
+          if (event->text.unicode == '\b' && result.size() > 0) {
+            result.erase(result.size() - 1, 1);
           } else {
-            reuslt_str += event->text.unicode;
+            result += event->text.unicode;
           }
-          // place text exactly on center of window
-          //Data->WelcomeText.setString(reuslt_str);
-          /*sf::Vector2f new_origin(
-              (Data->WelcomeText.getCharacterSize() * reuslt_str.size() / 4),
-              0.f);
-          Data->WelcomeText.setOrigin(new_origin);*/
-        } break;
+        } break; // sf::Event::KeyPressed:
+        case sf::Event::KeyPressed: 
+        {
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+            return std::wstring(result);
+          }
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+          {
+            return sf::String(L"");
+          }
+        } break; // sf::Event::KeyPressed:
       }  // switch (event->type)
+      draw(result, font, font_color, fonst_size, xp, yp);
       draw();
-      //MainWindow->draw(Data->WelcomeText);
       MainWindow->display();
+      MainWindow->clear();
     }  // while (Data->MainWindow->pollEvent(*event))
   }
   return sf::String();
