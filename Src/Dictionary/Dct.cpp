@@ -128,7 +128,7 @@ void dct::Dct::EventsHandler() {
             Cursor->setPosition(current);
           }
         }  // (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
           if (Menu[MenuCounter]) {
             std::wstring action = Menu[MenuCounter]->getString();
             if (!action.compare(L"SHOW DICTIONARY")) {
@@ -285,7 +285,6 @@ void dct::Dct::ShowDictionary() {
           }  // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
         }
       }
-      
     }
     draw(*Cursor);
     draw();
@@ -294,9 +293,37 @@ void dct::Dct::ShowDictionary() {
   }
 }
 
-bool dct::Dct::AddNewWord() 
-{
+bool dct::Dct::AddNewWord() {
   CleanDrawBuffer();
+  MenuCounter = 0;
+  Cursor->setPosition(0.f, 0.f);
+  unsigned int character_size = 18u;
+
+  // Category fields, first part
+  std::vector<sf::Text> fields;
+  fields.push_back(sf::Text(L"Word:", *Fonts.GetFuturaFont(), character_size));
+  fields.push_back(sf::Text(L"Translation:", *Fonts.GetFuturaFont(),character_size));
+  fields.push_back(sf::Text(L"Example:", *Fonts.GetFuturaFont(), character_size));
+  for (size_t i = 0; i < fields.size(); i++) {
+    fields[i].setFillColor(sf::Color::Green);
+  }
+
+  //User inputs, second part
+  std::vector<sf::Text> uinputs;
+  for (size_t i = 0; i < 3; i++) {
+    uinputs.push_back(sf::Text(L"", *Fonts.GetFuturaFont(), character_size));
+    uinputs[i].setFillColor(sf::Color::Green);
+  }
+
+  // Update cursor 
+  auto update_cursor_pose = [&]() {
+    // Additional check
+    if (MenuCounter < fields.size()) {
+      Cursor->setPosition(
+          fields[MenuCounter].getPosition().x - Cursor->getRadius() * 3,
+          fields[MenuCounter].getPosition().y + 4);
+    }
+  };
   while (MainWindow->isOpen()) {
     while (MainWindow->pollEvent(*event)) {
       switch (event->type) {
@@ -305,38 +332,55 @@ bool dct::Dct::AddNewWord()
           MainWindow->close();
         } break;
         case sf::Event::KeyPressed: {
-          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-            MenuCounter++;
-            if (MenuCounter > Dictionary.size() - 1) {
-              MenuCounter = 0;
-            }
-          }  // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-            if (MenuCounter == 0) {
-              MenuCounter = Dictionary.size() - 1;
-            } else {
-              MenuCounter--;
-            }
-          }  // (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
-            /*std::cout << "MenuCounter = " << MenuCounter << std::endl;
-               std::wcout << L"Dictuionary[MenuCounter] = "
-                          << std::wstring(
-                                 Dictionary[MenuCounter].word->getString())
-                          << std::endl;*/
-          }  // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
-          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Backspace)) {
+           if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+             MenuCounter++;
+             if (MenuCounter >= fields.size()) {
+               MenuCounter = 0;
+             }
+             update_cursor_pose();
+           }  // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+           if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+             if (MenuCounter == 0) {
+               MenuCounter = fields.size() - 1;
+             } else {
+               MenuCounter--;
+             }
+             update_cursor_pose();
+           }  // (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+           if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+             if (!std::wstring(fields[MenuCounter].getString())
+                      .compare(L"Word:")) {
+             
+             }
+             if (!std::wstring(fields[MenuCounter].getString())
+                      .compare(L"Translation:")) {
+             }
+             if (!std::wstring(fields[MenuCounter].getString())
+                      .compare(L"Example:")) {
+             }
+          }
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
             CleanDrawBuffer();
-            return true;
+            return false;
           }  // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-        }
+        }    // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
       }
     }
+    // Draw input fields 
+    for (size_t i = 0; i < fields.size(); i++) {
+      draw(fields[i], Cursor->getRadius() * 4,
+           character_size * i * WordsYSpace);
+    }
+    // If cursor positions is not initialized
+    if (!Cursor->getPosition().x && !Cursor->getPosition().y) {
+      update_cursor_pose();
+    }
+    draw(*Cursor);
     draw();
     display();
     clear();
   }
- return false;
+  return false;
 }
 
 bool dct::Dct::IsInDictionary(sf::String new_word) {
