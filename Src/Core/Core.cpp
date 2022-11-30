@@ -168,22 +168,30 @@ void dct_core::DctCore::CleanDrawBuffer() {
   DrawBuffer.clear();
 }
 
-sf::String dct_core::DctCore::GetString(sf::Font *font, sf::Color font_color, int fonst_size, float xp, float yp) {
-  std::wstring result;
+sf::String dct_core::DctCore::GetStringMenu(sf::Font* font,
+                                        sf::Color font_color, int fonst_size,
+                                        float xp, float yp) 
+{
+  return GetStringMenu(font, L"", font_color, fonst_size, xp,
+                   yp);
+}
+
+sf::String dct_core::DctCore::GetStringMenu(sf::Font *font, sf::String initial_str, sf::Color font_color, int fonst_size, float xp, float yp) {
+  std::wstring result = initial_str;
   sf::Vector2f strat_pose(xp, yp);
-  //Data->WelcomeText.setPosition(window_center);
   while (true) {
     while (MainWindow->pollEvent(*event)) {
       MainWindow->clear();
       switch (event->type) {
-        default: {
-        } break;
         case sf::Event::Closed: {
           MainWindow->close();
           exit(0);
         } break; // sf::Event::Closed:
         // handle input for user
         case sf::Event::TextEntered: {
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+            return std::wstring(result);
+          }
           // Backspace button pressed
           if (event->text.unicode == '\b' && result.size() > 0) {
             result.erase(result.size() - 1, 1);
@@ -191,22 +199,14 @@ sf::String dct_core::DctCore::GetString(sf::Font *font, sf::Color font_color, in
             result += event->text.unicode;
           }
         } break; // sf::Event::KeyPressed:
-        case sf::Event::KeyPressed: 
-        {
-          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
-            return std::wstring(result);
-          }
-          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
-          {
-            return sf::String(L"");
-          }
-        } break; // sf::Event::KeyPressed:
+        default:
+        break; // default:
       }  // switch (event->type)
-      draw(result, font, font_color, fonst_size, xp, yp);
-      draw();
-      MainWindow->display();
-      MainWindow->clear();
-    }  // while (Data->MainWindow->pollEvent(*event))
+    } 
+    draw(result, font, font_color, fonst_size, xp, yp);
+    draw();
+    MainWindow->display();
+    MainWindow->clear();
   }
   return sf::String();
 }
@@ -224,7 +224,7 @@ void dct_core::DctCore::MainLoop() {
   exit(0);
 
   // RemoveFromDrawBuffer(L"Monanto");
-  // std::wstring StringFromUser = GetString();
+  // std::wstring StringFromUser = GetStringMenu();
   // DrawInLoop( StringFromUser,  sf::Color::Green, 16, 10, 50);
 
   while (MainWindow->isOpen()) {

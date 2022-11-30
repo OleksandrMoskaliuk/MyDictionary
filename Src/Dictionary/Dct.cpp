@@ -3,6 +3,8 @@
 #include <SFML/Graphics.hpp>
 #include <fstream>
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 namespace dct {
 MyFonts Fonts;
@@ -16,19 +18,15 @@ dct::Dct::Dct() : DctCore::DctCore(800, 600), Cursor(new sf::CircleShape()) {
   LoadDictionary("dictionary.txt");
   // Make Menu
   Menu.push_back(
-      new sf::Text(L"SHOW DICTIONARY", *Fonts.GetFuturaFont(), 16));  // case 0
+      new sf::Text(L"SHOW DICTIONARY", *Fonts.GetFuturaFont(), 16));
   Menu.push_back(
-      new sf::Text(L"ADD WORD", *Fonts.GetFuturaFont(), 16));  // case 1
+      new sf::Text(L"ADD WORD", *Fonts.GetFuturaFont(), 16));
   Menu.push_back(
-      new sf::Text(L"REMOVE WORD", *Fonts.GetFuturaFont(), 16));  // case 2
+      new sf::Text(L"TEST YOURSELF", *Fonts.GetFuturaFont(), 16));
+  Menu.push_back(new sf::Text(L"SAVE", *Fonts.GetFuturaFont(), 16));
   Menu.push_back(
-      new sf::Text(L"EDIT WORD", *Fonts.GetFuturaFont(), 16));  // case 3
-  Menu.push_back(
-      new sf::Text(L"TEST YOURSELF", *Fonts.GetFuturaFont(), 16));    // case 4
-  Menu.push_back(new sf::Text(L"SAVE", *Fonts.GetFuturaFont(), 16));  // case 5
-  Menu.push_back(
-      new sf::Text(L"SAVE AND EXIT", *Fonts.GetFuturaFont(), 16));    // case 6
-  Menu.push_back(new sf::Text(L"EXIT", *Fonts.GetFuturaFont(), 16));  // case 7
+      new sf::Text(L"SAVE AND EXIT", *Fonts.GetFuturaFont(), 16));
+  Menu.push_back(new sf::Text(L"EXIT", *Fonts.GetFuturaFont(), 16));
   // Setup cursor Circle Shape
   Cursor->setRadius(6.f);
   Cursor->setPosition(0.f, 0.f);
@@ -43,7 +41,6 @@ dct::Dct::~Dct() {
   // Clear dictionary before exit
   for (Word wd : Dictionary) {
     delete wd.word;
-    delete wd.category;
     delete wd.translation;
     delete wd.example;
   }
@@ -80,7 +77,6 @@ void dct::Dct::Start() {
         L"Controls:\nRght arrow = Enter\nLeft arrow = Back\nUp arrow = Move "
         L"up\nDown arrow = Move down",
         Fonts.GetRobotoSlabFont(), sf::Color::Green, 18, 0, 0);
-
     draw(*Cursor);
     draw();
     display();
@@ -128,7 +124,7 @@ void dct::Dct::EventsHandler() {
             Cursor->setPosition(current);
           }
         }  // (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
           if (Menu[MenuCounter]) {
             std::wstring action = Menu[MenuCounter]->getString();
             if (!action.compare(L"SHOW DICTIONARY")) {
@@ -147,10 +143,6 @@ void dct::Dct::EventsHandler() {
               AddNewWord();
               Cursor->setPosition(last_cursor_position);
               MenuCounter = last_menu_counter;
-            }
-            if (!action.compare(L"REMOVE WORD")) {
-            }
-            if (!action.compare(L"EDIT WORD")) {
             }
             if (!action.compare(L"TEST YOURSELF")) {
             }
@@ -187,23 +179,18 @@ void dct::Dct::ShowDictionary() {
     }
   }
   // Find max font size
-  int max_character_size = 0;
-  for (size_t i = 0; i < Dictionary.size(); i++) {
-    if (max_character_size < Dictionary[i].word->getCharacterSize()) {
-      max_character_size = Dictionary[i].word->getString().getSize();
-    }
-  }
+  int font_size = 16;
   // Set cursor pose based on output words and MainWindow
   sf::Vector2f cursor_static_pose;
   cursor_static_pose.x =
-      (MainWindow->getSize().x / 2) - (longest_word * max_character_size);
-  cursor_static_pose.y = (MainWindow->getSize().y / 2) - max_character_size;
+      (MainWindow->getSize().x / 2) - (longest_word * font_size);
+  cursor_static_pose.y = (MainWindow->getSize().y / 2) - font_size;
   Cursor->setPosition(cursor_static_pose);
   // How many words to display
   uint8_t words_to_display = 6;
   MenuCounter = 0;
   auto up_and_down_action = [&]() {
-    if (Dictionary.size() > 0 && Dictionary[MenuCounter].word &&
+    if (Dictionary.size() && Dictionary[MenuCounter].word &&
         Dictionary[MenuCounter].translation) {
       // Make a new draw buffer
       CleanDrawBuffer();
@@ -213,12 +200,14 @@ void dct::Dct::ShowDictionary() {
             Dictionary[MenuCounter + i].word) {
           DrawInLoop(Dictionary[MenuCounter + i].word, sf::Color::Green,
                      14 + cursor_static_pose.x,
-                     i * max_character_size * WordsYSpace +
+                     i * font_size * WordsYSpace +
                          cursor_static_pose.y - 3.5);
           DrawInLoop(Dictionary[MenuCounter + i].translation, sf::Color::Green,
-                     cursor_static_pose.x + (longest_word * max_character_size),
-                     i * max_character_size * WordsYSpace +
+              cursor_static_pose.x + (longest_word * font_size),
+                     i * font_size * WordsYSpace +
                          cursor_static_pose.y - 3.5);
+          std::cout << "Max character size = " << font_size
+                    << std::endl;
         }
       }
       // top words part
@@ -226,11 +215,11 @@ void dct::Dct::ShowDictionary() {
         if (MenuCounter - i >= 0 && Dictionary[MenuCounter - i].word) {
           DrawInLoop(Dictionary[MenuCounter - i].word, sf::Color::Green,
                      14 + cursor_static_pose.x,
-                     -i * max_character_size * WordsYSpace +
+                     -i * font_size * WordsYSpace +
                          cursor_static_pose.y - 3.5);
           DrawInLoop(Dictionary[MenuCounter - i].translation, sf::Color::Green,
-                     cursor_static_pose.x + (longest_word * max_character_size),
-                     -i * max_character_size * WordsYSpace +
+              cursor_static_pose.x + (longest_word * font_size),
+                     -i * font_size * WordsYSpace +
                          cursor_static_pose.y - 3.5);
         }
       }
@@ -261,8 +250,7 @@ void dct::Dct::ShowDictionary() {
               MenuCounter = 0;
             }
             up_and_down_action();
-
-          }  // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+          }
           if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
             if (MenuCounter == 0) {
               MenuCounter = Dictionary.size() - 1;
@@ -270,20 +258,25 @@ void dct::Dct::ShowDictionary() {
               MenuCounter--;
             }
             up_and_down_action();
-
-          }  // (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+          }
           if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-            /*std::cout << "MenuCounter = " << MenuCounter << std::endl;
-               std::wcout << L"Dictuionary[MenuCounter] = "
-                          << std::wstring(
-                                 Dictionary[MenuCounter].word->getString())
-                          << std::endl;*/
-          }  // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
+            CleanDrawBuffer();
+            sf::Vector2f cursor_pose_backup = Cursor->getPosition();
+            int menu_couner_backup = MenuCounter;
+            AddNewWord(Dictionary[MenuCounter].word,
+                       Dictionary[MenuCounter].translation,
+                       Dictionary[MenuCounter].example);
+            MenuCounter = menu_couner_backup;
+            Cursor->setPosition(cursor_pose_backup);
+            up_and_down_action();
+          }
           if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
             CleanDrawBuffer();
             return;
-          }  // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-        }
+          }
+        } break; //sf::Event::KeyPressed:
+        default: {
+        } break; // default
       }
     }
     draw(*Cursor);
@@ -293,29 +286,57 @@ void dct::Dct::ShowDictionary() {
   }
 }
 
-bool dct::Dct::AddNewWord() {
+bool dct::Dct::AddNewWord() 
+{
+  return AddNewWord(nullptr, nullptr, nullptr);
+}
+
+bool dct::Dct::AddNewWord(sf::Text *word, sf::Text *translation,
+                          sf::Text *example) {
   CleanDrawBuffer();
   MenuCounter = 0;
   Cursor->setPosition(0.f, 0.f);
   unsigned int character_size = 18u;
-
+  bool block_inputs = false;
   // Category fields, first part
   std::vector<sf::Text> fields;
-  fields.push_back(sf::Text(L"Word:", *Fonts.GetFuturaFont(), character_size));
-  fields.push_back(sf::Text(L"Translation:", *Fonts.GetFuturaFont(),character_size));
-  fields.push_back(sf::Text(L"Example:", *Fonts.GetFuturaFont(), character_size));
+  fields.push_back(
+      sf::Text(L"Word:", *Fonts.GetRobotoSlabFont(), character_size));
+  fields.push_back(
+      sf::Text(L"Translation:", *Fonts.GetRobotoSlabFont(), character_size));
+  fields.push_back(
+      sf::Text(L"Example:", *Fonts.GetRobotoSlabFont(), character_size));
+  if (word && translation && example) {
+    fields.push_back(
+        sf::Text(L"Edit word and go back", *Fonts.GetRobotoSlabFont(), character_size));
+  } else {
+  fields.push_back(
+      sf::Text(L"Add word and go back", *Fonts.GetRobotoSlabFont(), character_size));
+  }
   for (size_t i = 0; i < fields.size(); i++) {
     fields[i].setFillColor(sf::Color::Green);
   }
 
-  //User inputs, second part
+  // User inputs, second part
   std::vector<sf::Text> uinputs;
+  // if methot imputs is not  nullptr we in edit mode
+  if (word && translation && example) {
+    uinputs.push_back(*word);
+    uinputs.push_back(*translation);
+    uinputs.push_back(*example);
+    for (size_t i = 0; i < 3; i++) {
+      uinputs[i].setFont(*Fonts.GetRobotoSlabFont());
+      uinputs[i].setFillColor(sf::Color::Green);
+    }
+  } else {
   for (size_t i = 0; i < 3; i++) {
-    uinputs.push_back(sf::Text(L"", *Fonts.GetFuturaFont(), character_size));
+    uinputs.push_back(
+        sf::Text(L"", *Fonts.GetRobotoSlabFont(), character_size));
     uinputs[i].setFillColor(sf::Color::Green);
   }
+  }
 
-  // Update cursor 
+  // Update cursor
   auto update_cursor_pose = [&]() {
     // Additional check
     if (MenuCounter < fields.size()) {
@@ -323,6 +344,30 @@ bool dct::Dct::AddNewWord() {
           fields[MenuCounter].getPosition().x - Cursor->getRadius() * 3,
           fields[MenuCounter].getPosition().y + 4);
     }
+  };
+  auto get_ustring_wrapper = [&](int word_category_index,
+                                 sf::String initial_wstr = L"") 
+  {
+    float start_drawing_point_x = 0.f;
+    float start_drawing_point_y = 20.f;
+    // This drawing will display string below in Core::GetStringMenu method 
+    if (word && translation && example) {
+      // Edit mode
+      DrawInLoop(L"Edit word and press rigth arrow.", sf::Color::Green, 18u,
+                 MainWindow->getSize().x / 3.f, MainWindow->getSize().y / 3.f);
+    } else {
+      DrawInLoop(L"Write new word and press right arrow.", sf::Color::Green, 18u,
+                 MainWindow->getSize().x / 3.f, MainWindow->getSize().y / 3.f);
+    }
+    block_inputs = true;
+    // Core::GetStringMenu will handle user input 
+    sf::String wstring_from_user =
+        GetStringMenu(Fonts.GetRobotoSlabFont(), initial_wstr, sf::Color::Green,
+                      character_size, MainWindow->getSize().x / 2.5f,
+                      MainWindow->getSize().y / 2.6f);
+    uinputs[word_category_index].setString(wstring_from_user);
+    block_inputs = false;
+    CleanDrawBuffer();
   };
   while (MainWindow->isOpen()) {
     while (MainWindow->pollEvent(*event)) {
@@ -332,44 +377,98 @@ bool dct::Dct::AddNewWord() {
           MainWindow->close();
         } break;
         case sf::Event::KeyPressed: {
-           if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-             MenuCounter++;
-             if (MenuCounter >= fields.size()) {
-               MenuCounter = 0;
-             }
-             update_cursor_pose();
-           }  // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-           if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-             if (MenuCounter == 0) {
-               MenuCounter = fields.size() - 1;
-             } else {
-               MenuCounter--;
-             }
-             update_cursor_pose();
-           }  // (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-           if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
-             if (!std::wstring(fields[MenuCounter].getString())
-                      .compare(L"Word:")) {
-             
-             }
-             if (!std::wstring(fields[MenuCounter].getString())
-                      .compare(L"Translation:")) {
-             }
-             if (!std::wstring(fields[MenuCounter].getString())
-                      .compare(L"Example:")) {
-             }
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && !block_inputs) {
+            MenuCounter++;
+            if (MenuCounter >= fields.size()) {
+              MenuCounter = 0;
+            }
+            update_cursor_pose();
+          }  // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up) && !block_inputs) {
+            if (MenuCounter == 0) {
+              MenuCounter = fields.size() - 1;
+            } else {
+              MenuCounter--;
+            }
+            update_cursor_pose();
+          }  // (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+            if (!std::wstring(fields[MenuCounter].getString())
+                     .compare(L"Word:")) {
+              if (word && translation && example) {
+                get_ustring_wrapper(0,word->getString());
+              } else {
+                get_ustring_wrapper(0);
+              }
+            }
+            if (!std::wstring(fields[MenuCounter].getString())
+                     .compare(L"Translation:")) {
+              if (word && translation && example) {
+                get_ustring_wrapper(1, word->getString());
+              } else {
+                get_ustring_wrapper(1);
+              }
+            }
+            if (!std::wstring(fields[MenuCounter].getString())
+                     .compare(L"Example:")) {
+              // Edit mode
+              if (word && translation && example) {
+                get_ustring_wrapper(2, word->getString());
+              } else { // New word mode
+                get_ustring_wrapper(2);
+              }
+            }
+            if (!std::wstring(fields[MenuCounter].getString())
+                     .compare(L"Edit word and go back")) {
+              // Save words and go back to previous menu
+              word->setString(uinputs[0].getString());
+              translation->setString(uinputs[1].getString());
+              example->setString(uinputs[2].getString());
+              return true;
+            }
+            if (!std::wstring(fields[MenuCounter].getString())
+                     .compare(L"Add word and go back")) {
+              Word new_word;
+              new_word.word = new sf::Text(uinputs[0].getString(),
+                                           *Fonts.GetBisternFont(), 16u);
+              new_word.translation = new sf::Text(uinputs[1].getString(),
+                                                  *Fonts.GetBisternFont(), 16u);
+              new_word.example = new sf::Text(uinputs[2].getString(),
+                                              *Fonts.GetBisternFont(), 16u);
+              // Do not add to Dictionary if the same word exist in dictionary 
+              if (IsInDictionary(new_word)) {
+                delete new_word.word;
+                delete new_word.translation;
+                delete new_word.example;
+                return false;
+              } else {
+                Dictionary.push_back(new_word);
+                return true;
+              }
+            }
           }
-          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape)) {
+          if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+            // Stop thread for preventing go back to far
+            std::this_thread::sleep_for(std::chrono::milliseconds(150));
             CleanDrawBuffer();
             return false;
-          }  // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-        }    // if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
+          }
+        } break; // case sf::Event::KeyPressed:
+        default: {
+        } break; // default;
       }
     }
-    // Draw input fields 
+    // Draw input fields
     for (size_t i = 0; i < fields.size(); i++) {
       draw(fields[i], Cursor->getRadius() * 4,
            character_size * i * WordsYSpace);
+    }
+    // Draw user input
+    for (size_t i = 0; i < uinputs.size(); i++) {
+      float xp = fields[i].getPosition().x +
+                 fields[i].getCharacterSize() * fields[i].getString().getSize() + 10;
+      float yp = character_size * i * WordsYSpace;
+      draw(uinputs[i], xp, yp);
     }
     // If cursor positions is not initialized
     if (!Cursor->getPosition().x && !Cursor->getPosition().y) {
@@ -383,11 +482,17 @@ bool dct::Dct::AddNewWord() {
   return false;
 }
 
-bool dct::Dct::IsInDictionary(sf::String new_word) {
+bool dct::Dct::IsInDictionary(Word &new_word) const {
   for (int i = 0; i < Dictionary.size(); i++) {
+    // Check if same word exist in dictionary
     if (!std::wstring(Dictionary[i].word->getString())
-             .compare(std::wstring(new_word)))
-      return true;
+             .compare(std::wstring(new_word.word->getString()))) {
+     // Check if same translation in this word 
+     if (!std::wstring(Dictionary[i].word->getString())
+              .compare(std::wstring(new_word.translation->getString()))) {
+       return true;
+     }
+    }
   }
   return false;
 }
@@ -435,7 +540,6 @@ bool dct::Dct::LoadDictionary(sf::String filename) {
       new_word.word = new sf::Text(word, *Fonts.GetBisternFont(), 16u);
       new_word.translation =
           new sf::Text(translation, *Fonts.GetBisternFont(), 16u);
-      new_word.category = new sf::Text(category, *Fonts.GetBisternFont(), 16u);
       new_word.example = new sf::Text(example, *Fonts.GetBisternFont(), 16u);
       Dictionary.push_back(new_word);
       word.clear();

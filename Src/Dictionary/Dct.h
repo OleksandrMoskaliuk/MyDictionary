@@ -15,7 +15,6 @@ namespace dct
 struct Word {
   sf::Text *word;
   sf::Text *translation;
-  sf::Text *category;
   sf::Text *example;
 };  // struct Word
 
@@ -38,8 +37,9 @@ class Dct : public dct_core::DctCore {
   void ShowDictionary();
   // Add new word to dictionary
   bool AddNewWord();
+  bool AddNewWord(sf::Text *word, sf::Text *translation, sf::Text *example);
   /* Check  if word exist in dictionary */
-  bool IsInDictionary(sf::String new_word);
+  bool IsInDictionary( Word &new_word) const;
   /* Read all words from saved *.txt file */
   bool LoadDictionary(sf::String filename);
   /* Save dictionary in file */

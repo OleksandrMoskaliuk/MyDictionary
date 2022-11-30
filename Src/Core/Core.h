@@ -53,9 +53,12 @@ class DctCore {
   void RemoveFromDrawBuffer(sf::String str);
   /* Clean static DrawBuffer data with all sf::Drawable objects */
   void CleanDrawBuffer();
-  // TODO: remove GetString()
-  sf::String GetString(sf::Font* font, sf::Color font_color, int fonst_size,
+  // Handle user text input
+  sf::String GetStringMenu(sf::Font* font, sf::Color font_color, int fonst_size,
                        float xp, float yp);
+  sf::String GetStringMenu(sf::Font* font, sf::String initial_str,
+                       sf::Color font_color, int fonst_size, float xp,
+                       float yp);
   /* Main loop should be overriden in children class */
   void MainLoop();
 };
